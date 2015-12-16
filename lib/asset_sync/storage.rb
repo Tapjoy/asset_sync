@@ -76,7 +76,7 @@ module AssetSync
         elsif File.exist?(self.config.manifest_path)
           log "Using: Manifest #{self.config.manifest_path}"
           yml = YAML.load(IO.read(self.config.manifest_path))
-   
+
           return yml.map do |original, compiled|
             # Upload font originals and compiled
             if original =~ /^.+(eot|svg|ttf|woff)$/
@@ -91,7 +91,13 @@ module AssetSync
       end
       log "Using: Directory Search of #{path}/#{self.config.assets_prefix}"
       Dir.chdir(path) do
-        to_load = self.config.assets_prefix.present? ? "#{self.config.assets_prefix}/**/**" : '**/**'
+        # So we may want to set the prefix something like 'prefix/'
+        # to prevent fuzzy folder matching in get_remote_files
+        # but that will cause issues with the folder expansion below in to_load
+        # So here we check if the prefix ends with a '/', and remove it as needed before
+        # looking for files.
+        path_prefix = self.config.assets_prefix.sub(/\/$/, '')
+        to_load = self.config.assets_prefix.present? ? "#{path_prefix}/**/**" : '**/**'
         Dir[to_load]
       end
     end
