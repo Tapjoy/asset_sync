@@ -78,7 +78,8 @@ module AssetSync
       end
       log "Using: Directory Search of #{path}/#{self.config.assets_prefix}"
       Dir.chdir(path) do
-        to_load = self.config.assets_prefix.present? ? "#{self.config.assets_prefix}/**/**" : '**/**'
+        # Using file join allows the asset_prefix to have a trailing slash without breaking the glob pattern.
+        to_load = self.config.assets_prefix.present? ? File.join(self.config.assets_prefix, '**', '*') : '**/*'
         Dir[to_load]
       end
     end
